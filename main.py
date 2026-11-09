@@ -1,6 +1,6 @@
 from colonia.dados import colonia, obter, total_geracao, total_consumo, listar_alertas
 from colonia.regras import decidir, sistemas_a_desligar
-from colonia.previsao import ajustar_reta, prever, classificar_previsao
+from colonia.previsao import ajustar_reta, prever, classificar_previsao, validar_medida
 from colonia.energia import somar_valores, calcular_saldo, analisar_energia, participacao_fontes
 from colonia.cenarios import CENARIOS
 
@@ -60,11 +60,11 @@ def ler_numero(mensagem):
         texto = input(mensagem).replace(",", ".")
         try:
             numero = float(texto)
-            if numero >= 0:
-                return numero
+            validar_medida(numero, "Valor")
+            return numero
         except ValueError:
             pass
-        print("Digite um número maior ou igual a zero.")
+        print("Digite um número finito maior ou igual a zero.")
 
 
 def digitar_cenario():
@@ -97,6 +97,7 @@ def main():
             print(f"  {numero} - {cenario['nome']}")
         print("  T - Rodar todos")
         print("  D - Digitar meus valores")
+        print("  P - Prever energia eólica a partir do vento")
         print("  S - Sair")
         opcao = input("Opção: ").strip().upper()
 
@@ -108,6 +109,14 @@ def main():
                 rodar_cenario(cenario, a, b)
         elif opcao == "D":
             rodar_cenario(digitar_cenario(), a, b)
+        elif opcao == "P":
+            vento_previsto = ler_numero("Vento previsto (m/s): ")
+            energia_prevista = prever(a, b, vento_previsto)
+            print(f"Energia eólica prevista: {energia_prevista:.1f} kW "
+                  f"({classificar_previsao(energia_prevista)})")
+            historico_vento = obter(colonia, "historico", "vento")
+            if vento_previsto < min(historico_vento) or vento_previsto > max(historico_vento):
+                print("Estimativa fora da faixa do histórico; a previsão tem maior incerteza.")
         elif opcao.isdigit() and 1 <= int(opcao) <= len(CENARIOS):
             rodar_cenario(CENARIOS[int(opcao) - 1], a, b)
         else:

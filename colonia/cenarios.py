@@ -24,4 +24,10 @@ CENARIOS = [
         "consumo": {"suporte_vida": 30, "habitacao": 20, "comunicacao": 10},
         "vento_previsto": 10,
     },
+    {
+        "nome": "Tempestade de poeira",
+        "geracao": {"solar": 5, "eolico": 10},
+        "consumo": {"suporte_vida": 30, "habitacao": 15, "laboratorio": 10, "comunicacao": 5},
+        "vento_previsto": 8,
+    },
 ]
